@@ -4,314 +4,303 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>For My Baby</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Pinyon+Script&family=Quicksand:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Quicksand:wght@300;500;700&family=Pinyon+Script&display=swap" rel="stylesheet">
+
     <style>
-        /* --- CORE AESTHETICS --- */
-        body { font-family: 'Quicksand', sans-serif; background: #0f172a; color: white; overflow: hidden; touch-action: none; }
-        .script { font-family: 'Pinyon Script', cursive; }
+        /* --- DESIGN SYSTEM --- */
+        :root {
+            --ghibli-night: #0f172a;
+            --stardust: #e2e8f0;
+            --rose-glow: #fda4af;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--ghibli-night);
+            color: var(--stardust);
+            overflow: hidden; 
+            touch-action: none;
+        }
+
         .serif { font-family: 'Cinzel', serif; }
+        .script { font-family: 'Pinyon Script', cursive; }
 
-        /* --- CINEMATIC INTRO --- */
-        #intro-screen {
-            position: fixed; inset: 0; background: #000; z-index: 100;
+        /* --- 1. CINEMATIC INTRO --- */
+        #intro-overlay {
+            position: fixed; inset: 0; z-index: 100;
+            background: black;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 1.5s ease-out;
+            transition: opacity 1.5s ease-in-out;
         }
-        .fade-up { animation: fadeUp 2s ease-out forwards; opacity: 0; transform: translateY(20px); }
-        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+        .fade-in-up { animation: fadeInUp 1.2s ease-out forwards; opacity: 0; transform: translateY(20px); }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
-        /* --- DREAMY BACKGROUND --- */
-        .dream-bg {
+        /* --- 2. BACKGROUND ART --- */
+        .bg-art {
             position: fixed; inset: 0; z-index: -10;
-            background: linear-gradient(to bottom, #2c3e50, #4ca1af); /* Fallback */
-            background: radial-gradient(circle at 50% 0%, #ffafbd 0%, #ffc3a0 30%, #a1c4fd 70%, #1a1a2e 100%);
-            background-size: 200% 200%;
-            animation: skyShift 20s infinite alternate;
+            background-image: url('1767370369832.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.7); /* Slightly darkens image so text pops */
         }
-        @keyframes skyShift { 0% { background-position: 50% 0%; } 100% { background-position: 50% 100%; } }
+        /* Floating Dust Motes Overlay */
+        .mote {
+            position: absolute; background: white; border-radius: 50%; opacity: 0;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+            animation: floatUp 15s linear infinite;
+        }
+        @keyframes floatUp { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 50% { opacity: 0.8; } 100% { transform: translateY(-10vh) scale(1.5); opacity: 0; } }
 
-        /* --- FLOATING PARTICLES --- */
-        .particle { position: absolute; background: white; border-radius: 50%; opacity: 0; animation: floatUp linear infinite; }
-        @keyframes floatUp { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 50% { opacity: 0.6; } 100% { transform: translateY(-10vh) scale(1.5); opacity: 0; } }
-
-        /* --- MAGIC TOUCH TRAIL --- */
-        .trail-dot {
-            position: fixed; width: 8px; height: 8px; background: rgba(255, 255, 255, 0.8);
+        /* --- 3. MAGIC TOUCH TRAIL --- */
+        .trail-particle {
+            position: fixed; width: 6px; height: 6px; background: #fff;
             border-radius: 50%; pointer-events: none; z-index: 50;
-            box-shadow: 0 0 10px white, 0 0 20px #ffafbd;
+            box-shadow: 0 0 15px var(--rose-glow), 0 0 30px white;
             animation: fadeTrail 0.8s linear forwards;
         }
-        @keyframes fadeTrail { to { opacity: 0; transform: scale(0); } }
+        @keyframes fadeTrail { to { opacity: 0; transform: scale(0) translateY(-20px); } }
 
-        /* --- HOLOGRAPHIC CARD --- */
+        /* --- 4. HOLOGRAPHIC CARD --- */
+        .perspective-container { perspective: 1000px; }
         .holo-card {
-            transform-style: preserve-3d; transition: transform 0.1s ease-out;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
         }
-        .shine {
-            position: absolute; inset: 0; z-index: 20;
-            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 60%);
-            opacity: 0; transition: opacity 0.3s; pointer-events: none;
+        .holo-sheen {
+            position: absolute; inset: 0; pointer-events: none; z-index: 20;
+            background: linear-gradient(125deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 70%);
+            mix-blend-mode: overlay; opacity: 0; transition: opacity 0.2s;
         }
 
-        /* --- LETTER MODAL --- */
-        #letter-modal {
-            position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+        /* --- 5. UI COMPONENTS --- */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .magic-btn-container { position: relative; overflow: hidden; }
+        .magic-fill {
+            position: absolute; top: 0; left: 0; height: 100%; width: 0%;
+            background: linear-gradient(90deg, #be123c, #fb7185);
+            transition: width 0.05s linear; z-index: 0;
+        }
+
+        /* --- 6. MODAL --- */
+        .modal {
+            position: fixed; inset: 0; z-index: 80;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
             display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+            opacity: 0; pointer-events: none; transition: all 0.4s ease;
         }
-        #letter-content {
-            background: #fffbf0; color: #333; width: 85%; max-width: 400px; padding: 2rem;
-            border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transform: translateY(50px) rotateX(10deg); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            background-image: linear-gradient(#e1e1e1 1px, transparent 1px); background-size: 100% 24px;
+        .modal-content {
+            background: #fff1f2; color: #881337;
+            transform: translateY(50px) scale(0.9); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .visible-modal { opacity: 1 !important; pointer-events: auto !important; }
-        .visible-content { transform: translateY(0) rotateX(0) !important; }
+        .modal.active { opacity: 1; pointer-events: auto; }
+        .modal.active .modal-content { transform: translateY(0) scale(1); }
     </style>
 </head>
-<body>
+<body class="flex flex-col items-center min-h-screen">
 
-    <div id="intro-screen">
-        <p class="fade-up text-rose-300 tracking-[0.3em] text-xs uppercase mb-4">11 Months of Us</p>
-        <h1 class="fade-up serif text-4xl text-white italic" style="animation-delay: 0.5s">Phoebbi Kate</h1>
-        <p class="fade-up text-gray-400 text-[10px] mt-4" style="animation-delay: 1.5s">Tap to begin...</p>
+    <div id="intro-overlay">
+        <p class="fade-in-up text-rose-300 text-[10px] tracking-[0.4em] uppercase mb-4">11 Months of Magic</p>
+        <h1 class="fade-in-up serif text-4xl text-white tracking-widest" style="animation-delay: 0.3s">PHOEBBI</h1>
+        <p class="fade-in-up text-gray-400 text-xs mt-6 animate-pulse" style="animation-delay: 1.5s">Tap to Enter Dreamscape</p>
     </div>
 
-    <div class="dream-bg"></div>
-    <div id="particles"></div>
+    <div class="bg-art"></div>
+    <div id="motes-container"></div>
 
-    <main class="relative z-10 min-h-screen flex flex-col items-center justify-between py-8 px-6 opacity-0 transition-opacity duration-1000" id="main-content">
+    <main id="app" class="relative z-10 w-full max-w-[430px] h-screen flex flex-col justify-between py-6 px-6 opacity-0 transition-opacity duration-1000">
         
-        <header class="w-full flex justify-between items-center">
-            <div class="flex flex-col">
-                <span class="text-[10px] uppercase tracking-widest text-white/70">Jan 03 • 2026</span>
-                <span class="serif text-xl text-rose-200">For My Baby</span>
+        <header class="flex justify-between items-center mt-2">
+            <div>
+                <p class="text-[10px] text-rose-200 tracking-[0.2em] uppercase font-bold text-shadow-sm">Jan 03 • 2026</p>
+                <h2 class="serif text-xl text-white drop-shadow-md">For My Baby</h2>
             </div>
-            <button onclick="toggleMusic()" class="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center backdrop-blur-md active:scale-90 transition">
-                <span id="music-icon">🎵</span>
+            <button onclick="toggleMusic()" class="w-10 h-10 rounded-full glass-panel flex items-center justify-center active:scale-95 transition">
+                <span id="music-icon" class="text-sm">🎵</span>
             </button>
         </header>
 
-        <div class="relative w-full max-w-[320px] aspect-[4/5] my-4 perspective-1000" id="card-container">
-            <div id="card" class="holo-card w-full h-full relative rounded-2xl overflow-hidden border-[6px] border-white/90 bg-white">
-                <img src="phoebbi.jpeg" alt="Baby" class="w-full h-full object-cover">
-                <div class="shine" id="shine"></div>
-                <div class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black/80 to-transparent">
-                    <p class="script text-4xl text-rose-100">I love you</p>
+        <div class="perspective-container w-full aspect-[3/4] my-4 flex justify-center items-center" id="card-trigger">
+            <div id="holo-card" class="holo-card relative w-full h-full rounded-[2rem] overflow-hidden border-4 border-white/20 bg-black/40">
+                <img src="phoebbi.jpeg" alt="Phoebbi Kate" class="w-full h-full object-cover opacity-95">
+                <div id="sheen" class="holo-sheen"></div>
+                <div class="absolute bottom-0 inset-x-0 p-8 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+                    <p class="text-rose-300 text-xs font-bold tracking-widest uppercase mb-1">My Favorite Person</p>
+                    <h2 class="serif text-3xl text-white leading-none">Phoebbi Kate</h2>
                 </div>
             </div>
         </div>
 
-        <div class="h-10 text-center">
-            <p id="typing-text" class="text-lg font-medium tracking-wide text-white drop-shadow-md"></p>
-        </div>
-
-        <div class="flex gap-4 w-full max-w-[340px] mt-4">
-            <div class="flex-1 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-3 flex justify-between items-center px-4">
-                <div class="text-center">
-                    <span id="d" class="block text-xl font-bold">00</span><span class="text-[8px] uppercase opacity-70">Days</span>
-                </div>
-                <div class="h-6 w-[1px] bg-white/20"></div>
-                <div class="text-center">
-                    <span id="h" class="block text-xl font-bold">00</span><span class="text-[8px] uppercase opacity-70">Hrs</span>
-                </div>
-                <div class="text-center">
-                    <span id="m" class="block text-xl font-bold">00</span><span class="text-[8px] uppercase opacity-70">Min</span>
-                </div>
+        <div class="flex gap-3 w-full">
+            <div class="flex-1 glass-panel rounded-2xl p-3 flex justify-around items-center text-white">
+                <div class="text-center"><span id="d" class="block text-lg font-bold">00</span><span class="text-[8px] uppercase opacity-80">Days</span></div>
+                <div class="w-[1px] h-4 bg-white/20"></div>
+                <div class="text-center"><span id="h" class="block text-lg font-bold">00</span><span class="text-[8px] uppercase opacity-80">Hrs</span></div>
+                <div class="w-[1px] h-4 bg-white/20"></div>
+                <div class="text-center"><span id="m" class="block text-lg font-bold">00</span><span class="text-[8px] uppercase opacity-80">Min</span></div>
             </div>
-            
-            <button onclick="openLetter()" class="w-16 bg-rose-500 rounded-2xl flex items-center justify-center shadow-lg shadow-rose-500/40 active:scale-90 transition">
+            <button onclick="toggleModal(true)" class="w-16 bg-rose-600 rounded-2xl flex items-center justify-center shadow-lg shadow-rose-900/50 active:scale-90 transition hover:bg-rose-500">
                 💌
             </button>
         </div>
 
-        <div class="w-full max-w-[340px] mt-6 mb-2">
-            <button id="magic-btn" class="group relative w-full h-14 rounded-full overflow-hidden bg-white/10 backdrop-blur-md border border-rose-300/50 shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-                <div id="fill" class="absolute inset-0 bg-gradient-to-r from-rose-400 to-pink-600 w-0 transition-all duration-75"></div>
-                <span class="relative z-10 font-bold tracking-widest text-xs uppercase group-active:scale-95 transition-transform flex items-center justify-center gap-2 h-full">
-                    Hold for Magic ✨
+        <div class="mt-4 mb-2">
+            <button id="magic-btn" class="magic-btn-container group w-full h-14 rounded-full glass-panel active:scale-95 transition-transform shadow-[0_0_20px_rgba(253,164,175,0.2)]">
+                <div id="progress-bar" class="magic-fill"></div>
+                <span class="relative z-10 flex items-center justify-center gap-2 text-white font-bold tracking-widest text-xs uppercase h-full pointer-events-none drop-shadow-md">
+                    Hold For Magic ✨
                 </span>
             </button>
+            <p class="text-center text-[9px] text-white/70 mt-2 tracking-wide font-medium">Press and hold to celebrate</p>
         </div>
+
     </main>
 
-    <div id="letter-modal" onclick="closeLetter()">
-        <div id="letter-content" onclick="event.stopPropagation()">
-            <h2 class="script text-4xl text-rose-800 mb-2">My Dearest Baby,</h2>
-            <p class="text-sm leading-7 text-gray-700 font-medium">
-                11 months ago, you walked into my life and changed everything. <br><br>
-                Every smile you give me is my new favorite memory. I can't wait to celebrate our 1st year next month.
-                <br><br>
-                You are my forever.
+    <div id="letter-modal" class="modal" onclick="toggleModal(false)">
+        <div class="modal-content w-[85%] max-w-[350px] p-8 rounded-xl shadow-2xl relative" onclick="event.stopPropagation()">
+            <div class="absolute -top-3 -right-3 bg-white text-rose-600 rounded-full p-2 shadow-md cursor-pointer font-bold" onclick="toggleModal(false)">✕</div>
+            <h3 class="serif text-2xl mb-4 text-rose-900 font-bold">My Dearest Baby,</h3>
+            <p class="font-medium text-sm leading-relaxed mb-4 text-gray-700">
+                11 months ago, my life changed forever. <br><br>
+                Thank you for every smile, every laugh, and every moment. You are my starlight in the dark. I can't wait for our 1st year anniversary next month!
             </p>
-            <p class="text-right mt-6 script text-2xl text-rose-600">- Yours</p>
+            <p class="script text-3xl text-rose-600 text-right">- Forever Yours</p>
         </div>
     </div>
 
     <audio id="bg-music" loop src="song.mp3"></audio>
 
     <script>
-        // --- 1. INTRO SEQUENCE ---
-        const intro = document.getElementById('intro-screen');
-        const main = document.getElementById('main-content');
-        
+        // INTRO
+        const intro = document.getElementById('intro-overlay');
+        const app = document.getElementById('app');
         intro.addEventListener('click', () => {
             intro.style.opacity = '0';
             setTimeout(() => {
                 intro.style.display = 'none';
-                main.style.opacity = '1';
-                typeWriter();
-                // Try playing audio on first interaction
-                document.getElementById('bg-music').play().catch(e => console.log("Audio needs manual toggle"));
+                app.style.opacity = '1';
+                document.getElementById('bg-music').play().catch(() => console.log("Audio waiting for interaction"));
             }, 1000);
         });
 
-        // --- 2. MAGIC TOUCH TRAIL ---
+        // BACKGROUND MOTES
+        const motesContainer = document.getElementById('motes-container');
+        for(let i=0; i<15; i++){
+            let m = document.createElement('div');
+            m.className = 'mote';
+            m.style.left = Math.random()*100 + 'vw';
+            m.style.width = m.style.height = Math.random()*3 + 1 + 'px';
+            m.style.animationDuration = Math.random()*10 + 10 + 's';
+            m.style.animationDelay = Math.random()*5 + 's';
+            motesContainer.appendChild(m);
+        }
+
+        // TOUCH TRAIL
+        const createTrail = (x, y) => {
+            const particle = document.createElement('div');
+            particle.className = 'trail-particle';
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 800);
+        };
+        document.addEventListener('mousemove', (e) => createTrail(e.clientX, e.clientY));
         document.addEventListener('touchmove', (e) => {
             const touch = e.touches[0];
             createTrail(touch.clientX, touch.clientY);
         });
-        document.addEventListener('mousemove', (e) => createTrail(e.clientX, e.clientY));
 
-        function createTrail(x, y) {
-            const dot = document.createElement('div');
-            dot.className = 'trail-dot';
-            dot.style.left = x + 'px';
-            dot.style.top = y + 'px';
-            document.body.appendChild(dot);
-            setTimeout(() => dot.remove(), 800);
-        }
+        // 3D CARD PHYSICS
+        const cardContainer = document.getElementById('card-trigger');
+        const card = document.getElementById('holo-card');
+        const sheen = document.getElementById('sheen');
 
-        // --- 3. HOLOGRAPHIC CARD TILT ---
-        const cardContainer = document.getElementById('card-container');
-        const card = document.getElementById('card');
-        const shine = document.getElementById('shine');
+        const handleMove = (x, y) => {
+            const rect = cardContainer.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const rotateX = ((y - centerY) / (rect.height / 2)) * -15;
+            const rotateY = ((x - centerX) / (rect.width / 2)) * 15;
+            card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            sheen.style.opacity = '1';
+            sheen.style.backgroundPosition = `${(x / window.innerWidth) * 100}%`;
+        };
+        const resetCard = () => {
+            card.style.transform = `rotateX(0deg) rotateY(0deg)`;
+            sheen.style.opacity = '0';
+        };
 
-        cardContainer.addEventListener('touchmove', (e) => {
-            const touch = e.touches[0];
-            const w = window.innerWidth;
-            const h = window.innerHeight;
-            const xAxis = (w / 2 - touch.clientX) / 15;
-            const yAxis = (h / 2 - touch.clientY) / 15;
-            
-            card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
-            shine.style.opacity = '1';
-        });
+        cardContainer.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+        cardContainer.addEventListener('mouseleave', resetCard);
+        cardContainer.addEventListener('touchmove', (e) => handleMove(e.touches[0].clientX, e.touches[0].clientY));
+        cardContainer.addEventListener('touchend', resetCard);
 
-        cardContainer.addEventListener('touchend', () => {
-            card.style.transform = 'rotateY(0deg) rotateX(0deg)';
-            shine.style.opacity = '0';
-        });
-
-        // --- 4. TYPING EFFECT ---
-        const text = "Happy 11th Monthsary, Baby ❤️";
-        const typeTarget = document.getElementById('typing-text');
-        let i = 0;
-        function typeWriter() {
-            if (i < text.length) {
-                typeTarget.innerHTML += text.charAt(i);
-                i++;
-                setTimeout(typeWriter, 100);
-            }
-        }
-
-        // --- 5. LONG PRESS MAGIC ---
+        // LONG PRESS
         const btn = document.getElementById('magic-btn');
-        const fill = document.getElementById('fill');
+        const bar = document.getElementById('progress-bar');
         let timer, progress = 0;
 
-        const start = (e) => {
-            e.preventDefault();
-            if(progress > 0) return;
+        const startPress = (e) => {
+            if (progress > 0) return;
             timer = setInterval(() => {
-                progress += 2;
-                fill.style.width = progress + '%';
-                if(progress >= 100) {
+                progress += 4;
+                bar.style.width = `${progress}%`;
+                if (progress >= 100) {
                     clearInterval(timer);
-                    fireworks();
-                    progress = 0; fill.style.width = '0%';
+                    fireConfetti();
+                    progress = 0; bar.style.width = '0%';
                 }
-            }, 20);
+            }, 30);
         };
-        const end = () => {
+        const endPress = () => {
             clearInterval(timer);
-            if(progress < 100) { progress = 0; fill.style.width = '0%'; }
+            if (progress < 100) { progress = 0; bar.style.width = '0%'; }
         };
 
-        btn.addEventListener('touchstart', start);
-        btn.addEventListener('touchend', end);
-        btn.addEventListener('mousedown', start);
-        btn.addEventListener('mouseup', end);
+        btn.addEventListener('touchstart', startPress);
+        btn.addEventListener('touchend', endPress);
+        btn.addEventListener('mousedown', startPress);
+        btn.addEventListener('mouseup', endPress);
 
-        function fireworks() {
+        function fireConfetti() {
             const duration = 3000;
             const end = Date.now() + duration;
-
             (function frame() {
-                confetti({
-                    particleCount: 5,
-                    angle: 60,
-                    spread: 55,
-                    origin: { x: 0 },
-                    colors: ['#ffc3a0', '#ffafbd']
-                });
-                confetti({
-                    particleCount: 5,
-                    angle: 120,
-                    spread: 55,
-                    origin: { x: 1 },
-                    colors: ['#a1c4fd', '#c2e9fb']
-                });
-
-                if (Date.now() < end) {
-                    requestAnimationFrame(frame);
-                }
+                confetti({ particleCount: 7, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#fda4af', '#e2e8f0'] });
+                confetti({ particleCount: 7, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#f43f5e', '#ffffff'] });
+                if (Date.now() < end) requestAnimationFrame(frame);
             }());
         }
 
-        // --- 6. PARTICLES BG ---
-        const pContainer = document.getElementById('particles');
-        for(let j=0; j<20; j++){
-            let p = document.createElement('div');
-            p.className = 'particle';
-            p.style.left = Math.random()*100 + 'vw';
-            p.style.width = p.style.height = Math.random()*4 + 2 + 'px';
-            p.style.animationDuration = Math.random()*5 + 5 + 's';
-            p.style.animationDelay = Math.random()*5 + 's';
-            pContainer.appendChild(p);
-        }
-
-        // --- 7. COUNTDOWN ---
-        const targetDate = new Date("Feb 3, 2026 00:00:00").getTime();
-        setInterval(() => {
-            const now = new Date().getTime();
-            const diff = targetDate - now;
-            document.getElementById('d').innerText = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2,'0');
-            document.getElementById('h').innerText = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2,'0');
-            document.getElementById('m').innerText = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2,'0');
-        }, 1000);
-
-        // --- 8. LETTER MODAL ---
-        function openLetter() {
+        // UTILS
+        function toggleModal(show) {
             const modal = document.getElementById('letter-modal');
-            const content = document.getElementById('letter-content');
-            modal.classList.add('visible-modal');
-            setTimeout(() => content.classList.add('visible-content'), 10);
+            if (show) modal.classList.add('active'); else modal.classList.remove('active');
         }
-        function closeLetter() {
-            const modal = document.getElementById('letter-modal');
-            const content = document.getElementById('letter-content');
-            content.classList.remove('visible-content');
-            setTimeout(() => modal.classList.remove('visible-modal'), 300);
-        }
-
         function toggleMusic() {
             const m = document.getElementById('bg-music');
-            if(m.paused) m.play(); else m.pause();
+            if (m.paused) m.play(); else m.pause();
         }
+
+        // COUNTDOWN (Feb 3, 2026)
+        const target = new Date("Feb 3, 2026 00:00:00").getTime();
+        setInterval(() => {
+            const now = new Date().getTime();
+            const diff = target - now;
+            document.getElementById('d').innerText = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
+            document.getElementById('h').innerText = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+            document.getElementById('m').innerText = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+        }, 1000);
     </script>
 </body>
 </html>
